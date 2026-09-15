@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de QR - Agronomía UNCP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Librería EasyQRCodeJS para permitir logos en el centro -->
+    <script src="https://unpkg.com/easyqrcodejs/dist/easy.qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f9f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .generator-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border-top: 5px solid #3E9A5C;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-weight: 800;
+        }
+
+        h2 span {
+            color: #3E9A5C;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3E9A5C;
+        }
+
+        button {
+            background-color: #3E9A5C;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #2e7746;
+            transform: translateY(-2px);
+        }
+
+        #qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            min-height: 250px;
+        }
+
+        #download-btn {
+            display: none;
+            background-color: #2c3e50;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        #download-btn:hover {
+            background-color: #1a252f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="generator-card">
+        <h2>Generador de <span>QR</span></h2>
+        <p>Ingresa el código del estudiante para generar su acceso.</p>
+
+        <div class="input-group">
+            <!-- Aquí el usuario escribe el código -->
+            <input type="text" id="studentCode" placeholder="Ej: 2021200786k" autocomplete="off">
+            <button onclick="generarQR()">Generar Código QR</button>
+        </div>
+
+        <!-- En este contenedor vacío aparecerá el dibujo del QR -->
+        <div id="qr-container"></div>
+        
+        <button id="download-btn" onclick="descargarQR()">Descargar QR</button>
+    </div>
+
+    <script>
+        let qrCodeObj = null;
+
+        function generarQR() {
+            const codeInput = document.getElementById('studentCode').value.trim();
+            const qrContainer = document.getElementById('qr-container');
+            const downloadBtn = document.getElementById('download-btn');
+
+            if (!codeInput) {
+                alert("Por favor, ingresa un código válido.");
+                return;
+            }
+
+            // Aquí se une tu URL base con el código que escribas en la caja
+            const urlFinal = `https://agronomiauncp.edu.pe/ofimatica/?code=${codeInput}`;
+
+            qrContainer.innerHTML = ""; // Limpia si había un QR anterior
+
+            // Configuración del QR
+            const options = {
+                text: urlFinal,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H, // Nivel H permite tapar el centro con el logo sin romper el QR
+                
+                // AQUÍ SE LLAMA A TU IMAGEN
+                logo: "logo.png", 
+                logoWidth: 70,    
+                logoHeight: 70,   
+                logoBackgroundTransparent: true, 
+                
+                // Colores para los cuadrados de las esquinas
+                PI: '#3E9A5C',
+                PO: '#2e7746'
+            };
+
+            qrCodeObj = new QRCode(qrContainer, options);
+            downloadBtn.style.display = "block"; // Muestra el botón de descargar
+        }
+
+        function descargarQR() {
+            const canvas = document.querySelector('#qr-container canvas');
+            if (canvas) {
+                const url = canvas.toDataURL("image/png");
+                const a = document.createElement('a');
+                a.href = url;
+                const code = document.getElementById('studentCode').value.trim();
+                a.download = `QR_${code}.png`; 
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+    </script>
+</body>
+</html>
